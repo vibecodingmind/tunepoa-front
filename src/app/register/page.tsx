@@ -24,8 +24,8 @@ const registerSchema = z.object({
     .regex(/[0-9]/, "Password must contain at least one number"),
   confirmPassword: z.string(),
   organizationName: z.string().optional(),
-  terms: z.literal(true, {
-    errorMap: () => ({ message: "You must accept the terms of service" }),
+  terms: z.boolean().refine(val => val === true, {
+    message: "You must accept the terms of service",
   }),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",

@@ -47,9 +47,11 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const firstError = error.errors[0];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const issues = (error as any).issues || (error as any).errors || [];
+      const message = issues[0]?.message || "Validation error";
       return NextResponse.json(
-        { error: firstError.message },
+        { error: message },
         { status: 400 }
       );
     }
