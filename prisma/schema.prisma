@@ -1,0 +1,337 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─── NextAuth Models ───
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String  @id @default(cuid())
+  sessionToken String  @unique
+  userId       String
+  expires      DateTime
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Core Models ───
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  CLIENT
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  phone         String?
+  role          UserRole  @default(CLIENT)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  accounts       Account[]
+  sessions       Session[]
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  organizationId String?
+  tones          ToneAssignment[]
+  subscriptions  Subscription[]
+  invoices       Invoice[]
+  activities     Activity[]
+  contactMessages ContactMessage[]
+
+  // Telecom lines owned by user
+  telecomLines   TelecomLine[]
+
+  // Tones created by user (admin)
+  createdTones   Tone[]
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  address     String?
+  city        String?
+  country     String   @default("Tanzania")
+  website     String?
+  logo        String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  users         User[]
+  telecomLines  TelecomLine[]
+  subscriptions Subscription[]
+}
+
+// ─── Tone / Audio Library ───
+
+enum ToneCategory {
+  CORPORATE
+  HOSPITALITY
+  RETAIL
+  HEALTHCARE
+  FINANCE
+  EDUCATION
+  ENTERTAINMENT
+  RELIGIOUS
+  GOVERNMENT
+  CUSTOM
+}
+
+enum ToneStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+model Tone {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  category    ToneCategory  @default(CORPORATE)
+  status      ToneStatus    @default(APPROVED)
+  duration    Int?          // seconds
+  audioUrl    String?
+  coverImage  String?
+  isPremium   Boolean       @default(false)
+  plays       Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Creator (admin who uploaded)
+  createdById String?
+  createdBy   User?         @relation(fields: [createdById], references: [id])
+
+  // Assignments
+  assignments ToneAssignment[]
+}
+
+model ToneAssignment {
+  id            String   @id @default(cuid())
+  toneId        String
+  userId        String
+  telecomLineId String?
+  isActive      Boolean  @default(true)
+  scheduledAt   DateTime?
+  expiresAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  tone       Tone        @relation(fields: [toneId], references: [id])
+  user       User        @relation(fields: [userId], references: [id])
+  telecomLine TelecomLine? @relation(fields: [telecomLineId], references: [id])
+}
+
+// ─── Telecom Lines ───
+
+enum TelecomProvider {
+  VODACOM
+  SAFARICOM
+  AIRTEL
+  TELKOM
+  MANGO
+  MAROC_TELECOM
+}
+
+enum LineStatus {
+  ACTIVE
+  INACTIVE
+  PENDING_ACTIVATION
+  SUSPENDED
+}
+
+model TelecomLine {
+  id           String           @id @default(cuid())
+  number       String
+  provider     TelecomProvider
+  status       LineStatus       @default(PENDING_ACTIVATION)
+  label        String?          // friendly name
+  activatedAt  DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  // Owner
+  userId          String
+  user            User            @relation(fields: [userId], references: [id])
+  organizationId  String?
+  organization    Organization?   @relation(fields: [organizationId], references: [id])
+
+  // Tone assignments
+  toneAssignments ToneAssignment[]
+
+  // Call analytics
+  callAnalytics   CallAnalytic[]
+}
+
+// ─── Subscription & Billing ───
+
+enum PlanType {
+  STARTER
+  PRO
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  TRIAL
+  EXPIRED
+}
+
+enum BillingPeriod {
+  MONTHLY
+  ANNUALLY
+}
+
+model Subscription {
+  id             String             @id @default(cuid())
+  userId         String
+  planType       PlanType          @default(STARTER)
+  status         SubscriptionStatus @default(TRIAL)
+  billingPeriod  BillingPeriod     @default(MONTHLY)
+  amount         Int               @default(0)  // in TZS
+  maxUsers       Int               @default(1)
+  maxLines       Int               @default(1)
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  cancelledAt    DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  user           User             @relation(fields: [userId], references: [id])
+  organizationId String?
+  organization   Organization?    @relation(fields: [organizationId], references: [id])
+  invoices       Invoice[]
+}
+
+model Invoice {
+  id             String   @id @default(cuid())
+  userId         String
+  subscriptionId String?
+  amount         Int      @default(0)  // in TZS
+  status         String   @default("pending") // pending, paid, failed, refunded
+  invoiceNumber  String   @unique
+  dueDate        DateTime
+  paidAt         DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id])
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id])
+}
+
+// ─── Analytics ───
+
+model CallAnalytic {
+  id           String   @id @default(cuid())
+  telecomLineId String
+  date         DateTime
+  totalCalls   Int      @default(0)
+  avgWaitTime  Int      @default(0)  // seconds
+  retentionRate Float   @default(0)  // percentage
+  peakHour     Int?     // 0-23
+  createdAt    DateTime @default(now())
+
+  telecomLine  TelecomLine @relation(fields: [telecomLineId], references: [id])
+}
+
+// ─── Activity Log ───
+
+enum ActivityType {
+  LOGIN
+  LOGOUT
+  TONE_ASSIGNED
+  TONE_REMOVED
+  LINE_ACTIVATED
+  LINE_SUSPENDED
+  PLAN_UPGRADED
+  PLAN_DOWNGRADED
+  PROFILE_UPDATED
+  PASSWORD_CHANGED
+  INVOICE_PAID
+  USER_CREATED
+  USER_DEACTIVATED
+}
+
+model Activity {
+  id          String       @id @default(cuid())
+  userId      String
+  type        ActivityType
+  description String
+  metadata    String?      // JSON string for additional data
+  createdAt   DateTime     @default(now())
+
+  user        User         @relation(fields: [userId], references: [id])
+}
+
+// ─── Contact Messages ───
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  company   String?
+  message   String
+  subject   String?
+  status    String   @default("new") // new, read, replied, archived
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Assigned to admin
+  assignedToId String?
+  assignedTo   User?   @relation(fields: [assignedToId], references: [id])
+}
+
+// ─── Platform Settings (Admin) ───
+
+model Setting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+}
