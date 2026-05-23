@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { LiveChat } from "@/components/LiveChat";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 
@@ -232,6 +233,7 @@ export default function RootLayout({
         <SessionProvider>
           {children}
           <Toaster />
+          <SonnerToaster richColors position="top-right" />
           <LiveChat />
         </SessionProvider>
       </body>

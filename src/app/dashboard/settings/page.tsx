@@ -4,13 +4,13 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { toast } from 'sonner';
 import {
   User,
   Shield,
   Bell,
   Mail,
   MessageSquare,
-  Megaphone,
   Save,
   Eye,
   EyeOff,
@@ -23,7 +23,6 @@ import { Badge } from '@/components/ui/badge';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -31,7 +30,6 @@ import {
 } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { cn } from '@/lib/utils';
 
 // Profile form schema
 const profileSchema = z.object({
@@ -66,7 +64,9 @@ function ProfileTab() {
   });
 
   function onSubmit(data: ProfileFormValues) {
-    console.log('Profile updated:', data);
+    toast.success('Profile updated', {
+      description: 'Your profile information has been saved successfully.',
+    });
   }
 
   return (
@@ -75,18 +75,18 @@ function ProfileTab() {
       <div className="flex items-center gap-6">
         <Avatar className="size-20 border-2 border-white/10">
           <AvatarImage src="" alt="User" />
-          <AvatarFallback className="bg-teal-500/20 text-teal-400 text-xl font-semibold">
+          <AvatarFallback className="bg-gradient-to-br from-teal-600 to-cyan-500 text-white text-xl font-bold">
             JM
           </AvatarFallback>
         </Avatar>
         <div>
           <h3 className="text-lg font-semibold text-white">Profile Photo</h3>
-          <p className="text-sm text-slate-500 mt-1">Update your profile picture</p>
+          <p className="text-sm text-white/40 mt-1">Update your profile picture</p>
           <div className="flex gap-3 mt-3">
             <Button
               variant="outline"
               size="sm"
-              className="border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white text-xs"
+              className="border-white/[0.08] bg-white/[0.04] text-white/70 hover:text-white hover:bg-white/[0.08] text-xs"
             >
               Upload
             </Button>
@@ -101,7 +101,7 @@ function ProfileTab() {
         </div>
       </div>
 
-      <Separator className="bg-white/5" />
+      <Separator className="bg-white/[0.06]" />
 
       {/* Profile Form */}
       <Form {...form}>
@@ -112,11 +112,11 @@ function ProfileTab() {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-slate-300 text-sm">Full Name</FormLabel>
+                  <FormLabel className="text-white/60 text-sm">Full Name</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
-                      className="bg-white/5 border-white/10 text-slate-300 focus-visible:border-teal-500/50"
+                      className="bg-white/[0.04] border-white/[0.08] text-white focus-visible:border-teal-500/50"
                     />
                   </FormControl>
                   <FormMessage />
@@ -128,12 +128,12 @@ function ProfileTab() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-slate-300 text-sm">Email Address</FormLabel>
+                  <FormLabel className="text-white/60 text-sm">Email Address</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       type="email"
-                      className="bg-white/5 border-white/10 text-slate-300 focus-visible:border-teal-500/50"
+                      className="bg-white/[0.04] border-white/[0.08] text-white focus-visible:border-teal-500/50"
                     />
                   </FormControl>
                   <FormMessage />
@@ -145,11 +145,11 @@ function ProfileTab() {
               name="phone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-slate-300 text-sm">Phone Number</FormLabel>
+                  <FormLabel className="text-white/60 text-sm">Phone Number</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
-                      className="bg-white/5 border-white/10 text-slate-300 focus-visible:border-teal-500/50"
+                      className="bg-white/[0.04] border-white/[0.08] text-white focus-visible:border-teal-500/50"
                     />
                   </FormControl>
                   <FormMessage />
@@ -161,11 +161,11 @@ function ProfileTab() {
               name="organization"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-slate-300 text-sm">Organization</FormLabel>
+                  <FormLabel className="text-white/60 text-sm">Organization</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
-                      className="bg-white/5 border-white/10 text-slate-300 focus-visible:border-teal-500/50"
+                      className="bg-white/[0.04] border-white/[0.08] text-white focus-visible:border-teal-500/50"
                     />
                   </FormControl>
                   <FormMessage />
@@ -176,7 +176,7 @@ function ProfileTab() {
           <div className="flex justify-end">
             <Button
               type="submit"
-              className="bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white shadow-lg shadow-teal-500/20"
+              className="bg-gradient-to-r from-teal-600 to-cyan-500 hover:from-teal-500 hover:to-cyan-400 text-white"
             >
               <Save className="size-4 mr-2" />
               Save Changes
@@ -203,7 +203,10 @@ function SecurityTab() {
   });
 
   function onSubmit(data: SecurityFormValues) {
-    console.log('Password changed:', data);
+    toast.success('Password updated', {
+      description: 'Your password has been changed successfully.',
+    });
+    form.reset();
   }
 
   return (
@@ -217,12 +220,12 @@ function SecurityTab() {
             </div>
             <div>
               <h3 className="text-sm font-semibold text-white">Two-Factor Authentication</h3>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-white/40 mt-0.5">
                 Add an extra layer of security to your account
               </p>
             </div>
           </div>
-          <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px]">
+          <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-[10px]">
             Enabled
           </Badge>
         </div>
@@ -239,14 +242,14 @@ function SecurityTab() {
           ].map((session, index) => (
             <div key={index} className="flex items-center justify-between py-2">
               <div className="flex items-center gap-3">
-                <div className="size-2 rounded-full bg-emerald-500" />
+                <div className="w-2 h-2 rounded-full bg-emerald-500" />
                 <div>
-                  <p className="text-sm text-slate-300">{session.device}</p>
-                  <p className="text-xs text-slate-500">{session.location} &middot; {session.time}</p>
+                  <p className="text-sm text-white/70">{session.device}</p>
+                  <p className="text-xs text-white/30">{session.location} &middot; {session.time}</p>
                 </div>
               </div>
               {session.current ? (
-                <Badge className="bg-teal-500/10 text-teal-400 border-teal-500/20 text-[10px]">
+                <Badge className="bg-teal-500/20 text-teal-400 border-teal-500/30 text-[10px]">
                   Current
                 </Badge>
               ) : (
@@ -254,6 +257,7 @@ function SecurityTab() {
                   variant="ghost"
                   size="sm"
                   className="text-red-400 hover:text-red-300 hover:bg-red-500/10 text-xs"
+                  onClick={() => toast.success('Session revoked')}
                 >
                   Revoke
                 </Button>
@@ -263,7 +267,7 @@ function SecurityTab() {
         </div>
       </div>
 
-      <Separator className="bg-white/5" />
+      <Separator className="bg-white/[0.06]" />
 
       {/* Change Password Form */}
       <div>
@@ -275,18 +279,18 @@ function SecurityTab() {
               name="currentPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-slate-300 text-sm">Current Password</FormLabel>
+                  <FormLabel className="text-white/60 text-sm">Current Password</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
                         {...field}
                         type={showCurrentPassword ? 'text' : 'password'}
-                        className="bg-white/5 border-white/10 text-slate-300 focus-visible:border-teal-500/50 pr-10"
+                        className="bg-white/[0.04] border-white/[0.08] text-white focus-visible:border-teal-500/50 pr-10"
                       />
                       <button
                         type="button"
                         onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
                       >
                         {showCurrentPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                       </button>
@@ -301,18 +305,18 @@ function SecurityTab() {
               name="newPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-slate-300 text-sm">New Password</FormLabel>
+                  <FormLabel className="text-white/60 text-sm">New Password</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
                         {...field}
                         type={showNewPassword ? 'text' : 'password'}
-                        className="bg-white/5 border-white/10 text-slate-300 focus-visible:border-teal-500/50 pr-10"
+                        className="bg-white/[0.04] border-white/[0.08] text-white focus-visible:border-teal-500/50 pr-10"
                       />
                       <button
                         type="button"
                         onClick={() => setShowNewPassword(!showNewPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
                       >
                         {showNewPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                       </button>
@@ -327,18 +331,18 @@ function SecurityTab() {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-slate-300 text-sm">Confirm New Password</FormLabel>
+                  <FormLabel className="text-white/60 text-sm">Confirm New Password</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
                         {...field}
                         type={showConfirmPassword ? 'text' : 'password'}
-                        className="bg-white/5 border-white/10 text-slate-300 focus-visible:border-teal-500/50 pr-10"
+                        className="bg-white/[0.04] border-white/[0.08] text-white focus-visible:border-teal-500/50 pr-10"
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
                       >
                         {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                       </button>
@@ -350,7 +354,7 @@ function SecurityTab() {
             />
             <Button
               type="submit"
-              className="bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white shadow-lg shadow-teal-500/20"
+              className="bg-gradient-to-r from-teal-600 to-cyan-500 hover:from-teal-500 hover:to-cyan-400 text-white"
             >
               <Shield className="size-4 mr-2" />
               Update Password
@@ -374,6 +378,7 @@ function NotificationsTab() {
 
   const toggleNotification = (key: keyof typeof notifications) => {
     setNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
+    toast.success('Notification preference updated');
   };
 
   const notificationGroups = [
@@ -381,48 +386,24 @@ function NotificationsTab() {
       title: 'Email Notifications',
       icon: Mail,
       items: [
-        {
-          key: 'emailBilling' as const,
-          label: 'Billing & Invoices',
-          description: 'Receive email notifications for invoices and payment updates',
-        },
-        {
-          key: 'emailActivity' as const,
-          label: 'Activity Alerts',
-          description: 'Get notified about tone assignments, line changes, etc.',
-        },
-        {
-          key: 'emailMarketing' as const,
-          label: 'Marketing & Updates',
-          description: 'Receive product updates, tips, and promotional offers',
-        },
+        { key: 'emailBilling' as const, label: 'Billing & Invoices', description: 'Receive email notifications for invoices and payment updates' },
+        { key: 'emailActivity' as const, label: 'Activity Alerts', description: 'Get notified about tone assignments, line changes, etc.' },
+        { key: 'emailMarketing' as const, label: 'Marketing & Updates', description: 'Receive product updates, tips, and promotional offers' },
       ],
     },
     {
       title: 'SMS Alerts',
       icon: MessageSquare,
       items: [
-        {
-          key: 'smsAlerts' as const,
-          label: 'Critical Alerts',
-          description: 'SMS alerts for critical events like failed payments',
-        },
-        {
-          key: 'smsBilling' as const,
-          label: 'Billing Reminders',
-          description: 'SMS reminders for upcoming payment due dates',
-        },
+        { key: 'smsAlerts' as const, label: 'Critical Alerts', description: 'SMS alerts for critical events like failed payments' },
+        { key: 'smsBilling' as const, label: 'Billing Reminders', description: 'SMS reminders for upcoming payment due dates' },
       ],
     },
     {
       title: 'Push Notifications',
       icon: Bell,
       items: [
-        {
-          key: 'pushNotifications' as const,
-          label: 'All Notifications',
-          description: 'Receive push notifications for all account activities',
-        },
+        { key: 'pushNotifications' as const, label: 'All Notifications', description: 'Receive push notifications for all account activities' },
       ],
     },
   ];
@@ -432,20 +413,20 @@ function NotificationsTab() {
       {notificationGroups.map((group) => (
         <div key={group.title}>
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex items-center justify-center size-8 rounded-lg bg-white/5">
+            <div className="flex items-center justify-center size-8 rounded-lg bg-white/[0.04]">
               <group.icon className="size-4 text-teal-400" />
             </div>
             <h3 className="text-sm font-semibold text-white">{group.title}</h3>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {group.items.map((item) => (
               <div
                 key={item.key}
-                className="glass-card rounded-xl p-4 flex items-center justify-between"
+                className="glass-card rounded-lg p-4 flex items-center justify-between"
               >
                 <div>
-                  <p className="text-sm font-medium text-slate-200">{item.label}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{item.description}</p>
+                  <p className="text-sm font-medium text-white/70">{item.label}</p>
+                  <p className="text-xs text-white/30 mt-0.5">{item.description}</p>
                 </div>
                 <Switch
                   checked={notifications[item.key]}
@@ -455,7 +436,7 @@ function NotificationsTab() {
               </div>
             ))}
           </div>
-          <Separator className="bg-white/5 my-6" />
+          <Separator className="bg-white/[0.06] my-6" />
         </div>
       ))}
     </div>
@@ -465,34 +446,32 @@ function NotificationsTab() {
 export default function SettingsPage() {
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Page Header */}
       <div>
         <h1 className="text-2xl font-bold text-white">Settings</h1>
-        <p className="text-slate-400 mt-1">
-          Manage your account preferences and security settings
-        </p>
+        <p className="text-white/40 text-sm mt-1">Manage your account preferences and security settings</p>
       </div>
 
       {/* Settings Tabs */}
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="bg-white/5 border border-white/10 h-auto p-1">
+        <TabsList className="bg-white/[0.04] border border-white/[0.06] h-auto p-1">
           <TabsTrigger
             value="profile"
-            className="data-[state=active]:bg-teal-500/15 data-[state=active]:text-teal-400 text-slate-400 text-sm px-4 py-2"
+            className="data-[state=active]:bg-teal-500/20 data-[state=active]:text-teal-400 text-white/50 text-sm px-4 py-2"
           >
             <User className="size-4 mr-2" />
             Profile
           </TabsTrigger>
           <TabsTrigger
             value="security"
-            className="data-[state=active]:bg-teal-500/15 data-[state=active]:text-teal-400 text-slate-400 text-sm px-4 py-2"
+            className="data-[state=active]:bg-teal-500/20 data-[state=active]:text-teal-400 text-white/50 text-sm px-4 py-2"
           >
             <Shield className="size-4 mr-2" />
             Security
           </TabsTrigger>
           <TabsTrigger
             value="notifications"
-            className="data-[state=active]:bg-teal-500/15 data-[state=active]:text-teal-400 text-slate-400 text-sm px-4 py-2"
+            className="data-[state=active]:bg-teal-500/20 data-[state=active]:text-teal-400 text-white/50 text-sm px-4 py-2"
           >
             <Bell className="size-4 mr-2" />
             Notifications
